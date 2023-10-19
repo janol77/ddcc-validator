@@ -11,8 +11,8 @@ import org.who.ddccverifier.QRDecoder
 import org.who.ddccverifier.trust.TrustRegistry
 import org.who.ddccverifier.verify.hcert.dcc.DccMapper
 import org.who.ddccverifier.verify.hcert.dcc.logical.CWT
-import org.who.ddccverifier.verify.hcert.dcc.logical.WHOLogicalModel
-import org.who.ddccverifier.verify.hcert.dcc.logical.WHO_CWT
+import org.who.ddccverifier.verify.hcert.who.WHOLogicalModel
+import org.who.ddccverifier.verify.hcert.who.WHO_CWT
 import org.who.ddccverifier.verify.hcert.who.WhoMapper
 import java.security.PublicKey
 import java.util.*
@@ -110,16 +110,16 @@ class HCertVerifier (private val registry: TrustRegistry) {
                 e.printStackTrace()
             }
 
-        try {
-            return WhoMapper().run(
-                jacksonObjectMapper().readValue(
-                    hcertPayload.ToJSONString(),
-                    WHOLogicalModel::class.java
-                )
-            );
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+//        try {
+//            return WhoMapper().run(
+//                jacksonObjectMapper().readValue(
+//                    hcertPayload.ToJSONString(),
+//                    WHOLogicalModel::class.java
+//                )
+//            );
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
 
         try {
             jacksonObjectMapper().readValue(

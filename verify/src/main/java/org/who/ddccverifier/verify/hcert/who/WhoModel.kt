@@ -1,5 +1,6 @@
-package org.who.ddccverifier.verify.hcert.dcc.logical
+package org.who.ddccverifier.verify.hcert.who
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.TreeNode
@@ -40,13 +41,14 @@ class WHO_CWT (
 //     @JsonProperty("1")
 //     val cert: WHOLogicalModel?          // Cert
 // ): BaseModel()
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 class WHOLogicalModel (
+
     // val meta: Meta?,
 
     val name: StringType?,
     val birthDate: DateType?,
-    val sex: Coding?,
+    val sex: CodeType?,
     val identifier: StringType?,
 
     // test
@@ -59,10 +61,19 @@ class WHOLogicalModel (
 ): BaseModel()
 
 class CertificateData (
-    val hcid: Identifier?,
-    val issuer: Reference?,
-    val period: Period?,
+    val hcid: StringType?,
+    val issuer: IssuerData?,
+    val period: PeriodData?,
     val version: StringType?,
+): BaseModel()
+
+class IssuerData (
+    val identifier: StringType?,
+): BaseModel()
+
+class PeriodData (
+    val start: DateTimeType?,
+    val end: DateTimeType?,
 ): BaseModel()
 
 class VaccinationData (
@@ -74,13 +85,13 @@ class VaccinationData (
     val country: Coding?,
     val disease: Coding?,
     val vaccine: Coding?,
-    val ma_holder: Coding?,
-    val nextDose: DateType?,
-    val valid_from: DateType?,
-    val total_doses: PositiveIntType?,
+    val maholder: Coding?,
+    val nextDose: DateTimeType?,
+    val validFrom: DateType?,
+    val totalDoses: PositiveIntType?,
     @JsonDeserialize(using = CodingOrReferenceDeserializer::class)
     val manufacturer: Base?,
-    val practitioner: Identifier?
+    val practitioner: StringType?
 ): BaseModel()
 
 class TestResult (
