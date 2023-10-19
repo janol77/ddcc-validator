@@ -32,17 +32,17 @@ class WHO_CWT (
     val iat: DateTimeType?, // issued at date
     @JsonProperty("7")
     val id: StringType?,   // Audience
-    @JsonProperty("-260")
-    val data: WHO_HCERT?,      // Certificate
+    @JsonProperty("-255")
+    val data: WHOLogicalModel?,      // Certificate
 ): BaseModel()
 
-class WHO_HCERT(
-    @JsonProperty("1")
-    val cert: WHOLogicalModel?          // Cert
-): BaseModel()
+// class WHO_HCERT(
+//     @JsonProperty("1")
+//     val cert: WHOLogicalModel?          // Cert
+// ): BaseModel()
 
 class WHOLogicalModel (
-    val meta: Meta?,
+    // val meta: Meta?,
 
     val name: StringType?,
     val birthDate: DateType?,
@@ -50,31 +50,37 @@ class WHOLogicalModel (
     val identifier: StringType?,
 
     // test
-    val test: TestResult?,
+    // val test: TestResult?,
 
     // certificate
-    val hcid: StringType?,
-    val valid_from: DateTimeType?,
-    val valid_until: DateTimeType?,
+    val certificate: CertificateData?,
+    // vaccination
+    val vaccination: VaccinationData?,
+): BaseModel()
 
-    // Vaccine fields are in the root
-    val date: DateTimeType?,
-    val due_date: DateTimeType?,
-    val vaccine_valid: DateType?,
-    val hw: StringType?,
-    val disease: Coding?,
-    val centre: StringType?,
-    val vaccine: Coding?,
+class CertificateData (
+    val hcid: Identifier?,
+    val issuer: Reference?,
+    val period: Period?,
+    val version: StringType?,
+): BaseModel()
+
+class VaccinationData (
     val lot: StringType?,
+    val date: DateTimeType?,
     val dose: PositiveIntType?,
-    val total_doses: PositiveIntType?,
-
     val brand: Coding?,
+    val centre: StringType?,
+    val country: Coding?,
+    val disease: Coding?,
+    val vaccine: Coding?,
     val ma_holder: Coding?,
+    val nextDose: DateType?,
+    val valid_from: DateType?,
+    val total_doses: PositiveIntType?,
     @JsonDeserialize(using = CodingOrReferenceDeserializer::class)
     val manufacturer: Base?,
-    val pha: StringType?,
-    val country: Coding?
+    val practitioner: Identifier?
 ): BaseModel()
 
 class TestResult (
