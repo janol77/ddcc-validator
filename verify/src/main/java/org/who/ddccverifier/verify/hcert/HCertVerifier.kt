@@ -5,6 +5,7 @@ import COSE.OneKey
 import COSE.Sign1Message
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.upokecenter.cbor.CBORObject
+import com.upokecenter.cbor.JSONOptions
 import nl.minvws.encoding.Base45
 import org.hl7.fhir.r4.model.Bundle
 import org.who.ddccverifier.QRDecoder
@@ -55,6 +56,14 @@ class HCertVerifier (private val registry: TrustRegistry) {
         } catch (e: Throwable) {
             null
         }
+    }
+
+    private fun getProtectedAttributesAsJson(input: Sign1Message): String {
+        return input.protectedAttributes.ToJSONString(JSONOptions(true))
+    }
+
+    private fun getUnprotectedAttributesAsJson(input: Sign1Message): String {
+        return input.unprotectedAttributes.ToJSONString(JSONOptions(true))
     }
 
     private fun getKID(input: Sign1Message): String? {
@@ -143,12 +152,16 @@ class HCertVerifier (private val registry: TrustRegistry) {
             QRDecoder.Status.INVALID_SIGNING_FORMAT, null, null, qr, null)
 
         val contentsCBOR = getContent(signedMessage)
-        val unpacked = contentsCBOR.ToJSONString()
+        val unpacked = """[
+            ${getProtectedAttributesAsJson(signedMessage)},
+            ${getUnprotectedAttributesAsJson(signedMessage)},
+            ${contentsCBOR.ToJSONString()}
+        ]"""
 
-        val contents = toFhir(contentsCBOR) ?: return QRDecoder.VerificationResult(QRDecoder.Status.NOT_SUPPORTED, null, null, qr, unpacked)
+        val kid = getKID(signedMessage) ?: return QRDecoder.VerificationResult(QRDecoder.Status.KID_NOT_INCLUDED, null, null, qr, unpacked)
+        val issuer = resolveIssuer(kid) ?: return QRDecoder.VerificationResult(QRDecoder.Status.ISSUER_NOT_TRUSTED, null, null, qr, unpacked)
 
-        val kid = getKID(signedMessage) ?: return QRDecoder.VerificationResult(QRDecoder.Status.KID_NOT_INCLUDED, contents, null, qr, unpacked)
-        val issuer = resolveIssuer(kid) ?: return QRDecoder.VerificationResult(QRDecoder.Status.ISSUER_NOT_TRUSTED, contents, null, qr, unpacked)
+        val contents = toFhir(contentsCBOR) ?: return QRDecoder.VerificationResult(QRDecoder.Status.NOT_SUPPORTED, null, issuer, qr, unpacked)
 
         return when (issuer.status) {
             TrustRegistry.Status.TERMINATED -> QRDecoder.VerificationResult(QRDecoder.Status.TERMINATED_KEYS, contents, issuer, qr, unpacked)

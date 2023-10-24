@@ -48,5 +48,12 @@ class DDCCTrustRegistryTest {
         val t = registry.resolve(TrustRegistry.Framework.ICAO, "JP#arTykoK9lkf2/yoC95RNdJ6XhGM=")
         assertNotNull(t)
     }
+
+    @Test
+    fun testDDCCLuxemburg() {
+        // did:web:tng-cdn-dev.who.int:trustlist:lux#40wemvsu28E%3D
+        val t = registry.resolve(TrustRegistry.Framework.DCC, "lux#40wemvsu28E=")
+        assertNotNull(t)
+    }
 }
 

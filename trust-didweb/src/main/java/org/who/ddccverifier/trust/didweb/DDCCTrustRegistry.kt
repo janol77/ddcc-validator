@@ -2,9 +2,13 @@ package org.who.ddccverifier.trust.didweb
 
 import com.nimbusds.jose.jwk.AsymmetricJWK
 import com.nimbusds.jose.jwk.JWK
+import foundation.identity.did.DIDDocument
 import foundation.identity.did.VerificationMethod
+import foundation.identity.did.jsonld.DIDKeywords
+import foundation.identity.jsonld.JsonLDUtils
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
+import jakarta.json.JsonObject
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.who.ddccverifier.trust.TrustRegistry
 import java.net.URI
@@ -13,6 +17,7 @@ import java.security.PublicKey
 import java.security.Security
 import java.text.ParseException
 import java.util.*
+import java.util.function.Function
 import kotlin.system.measureTimeMillis
 import kotlin.time.ExperimentalTime
 import kotlin.time.measureTimedValue
@@ -26,14 +31,11 @@ operator fun <T> List<T>.component8() = this[7]
  */
 class DDCCTrustRegistry : TrustRegistry {
     companion object {
-        const val registrySigningKey = "did:web:PCF.PW:1A13#WEB"
-        const val baseDID = "did:web:raw.githubusercontent.com:WorldHealthOrganization:ddcc-trust:main:dist"
+        const val PROD_KEY_ID = "did:web:tng-cdn-uat.who.int:trustlist"
+        const val TEST_KEY_ID = "did:web:tng-cdn-dev.who.int:trustlist"
 
-        const val PROD_KEY_ID = "$baseDID:prod:u:k"
-        const val TEST_KEY_ID = "$baseDID:test:u:k"
-
-        const val PROD_DID = "https://tng-cdn-uat.who.int/trustlist/did.json"  //this is UAT not PROD!!! 
-        const val TEST_DID = "https://tng-cdn-dev.who.int/trustlist/did.json"
+        const val PROD_DID = "did:web:tng-cdn-uat.who.int:trustlist"  //this is UAT not PROD!!!
+        const val TEST_DID = "did:web:tng-cdn-dev.who.int:trustlist"
 
         val PRODUCTION_REGISTRY = TrustRegistry.RegistryEntity(TrustRegistry.Scope.PRODUCTION, URI(PROD_DID), null)
         val ACCEPTANCE_REGISTRY =  TrustRegistry.RegistryEntity(TrustRegistry.Scope.ACCEPTANCE_TEST, URI(TEST_DID), null)
@@ -84,6 +86,22 @@ class DDCCTrustRegistry : TrustRegistry {
         return null
     }
 
+    fun DIDDocument.parseVerificationMethods(): List<VerificationMethod> {
+        val jsonArray = JsonLDUtils.jsonLdGetJsonArray(getJsonObject(), DIDKeywords.JSONLD_TERM_VERIFICATIONMETHOD)
+        return jsonArray.mapNotNull {
+            if (it is Map<*, *>) {
+                val method = VerificationMethod.fromJsonObject(it as Map<String, Any>)
+                if (method is VerificationMethod) {
+                    method
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+    }
+
     @OptIn(ExperimentalTime::class)
     fun load(registryURL: TrustRegistry.RegistryEntity) {
         try {
@@ -93,7 +111,7 @@ class DDCCTrustRegistry : TrustRegistry {
             println("TIME: Trust Downloaded in $elapsedServerDownload from ${registryURL.resolvableURI}")
 
             val elapsed = measureTimeMillis {
-                didDocumentResolution?.didDocument?.verificationMethods?.forEach {
+                didDocumentResolution?.didDocument?.parseVerificationMethods()?.forEach {
                     try {
                         val key = buildPublicKey(it)
                         if (key != null)
@@ -108,6 +126,8 @@ class DDCCTrustRegistry : TrustRegistry {
                                     key
                                 )
                             )
+
+                        println("Loaded: ${it.id}")
                     } catch(t: Throwable) {
                         println("Exception while loading kid: ${it.id}")
                         t.printStackTrace()
