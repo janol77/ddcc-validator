@@ -33,14 +33,14 @@ class WHO_CWT (
     val iat: DateTimeType?, // issued at date
     @JsonProperty("7")
     val id: StringType?,   // Audience
-    @JsonProperty("-255")
-    val data: WHOLogicalModel?,      // Certificate
+    @JsonProperty("-260")
+    val data: WHO_HCERT?,      // Certificate
 ): BaseModel()
 
-// class WHO_HCERT(
-//     @JsonProperty("1")
-//     val cert: WHOLogicalModel?          // Cert
-// ): BaseModel()
+ class WHO_HCERT(
+     @JsonProperty("2")
+     val cert: WHOLogicalModel?          // Cert
+ ): BaseModel()
 @JsonIgnoreProperties(ignoreUnknown = true)
 class WHOLogicalModel (
 
@@ -77,21 +77,21 @@ class PeriodData (
 ): BaseModel()
 
 class VaccinationData (
-    val lot: StringType?,
-    val date: DateTimeType?,
-    val dose: PositiveIntType?,
-    val brand: Coding?,
-    val centre: StringType?,
-    val country: Coding?,
-    val disease: Coding?,
     val vaccine: Coding?,
-    val maholder: Coding?,
-    val nextDose: DateTimeType?,
-    val validFrom: DateType?,
-    val totalDoses: PositiveIntType?,
+    val brand: Coding?,
     @JsonDeserialize(using = CodingOrReferenceDeserializer::class)
     val manufacturer: Base?,
-    val practitioner: StringType?
+    val maholder: Coding?,
+    val lot: StringType?,
+    val date: DateTimeType?,
+    val validFrom: DateType?,
+    val dose: PositiveIntType?,
+    val totalDoses: PositiveIntType?,
+    val country: Coding?,
+    val centre: StringType?,
+    val practitioner: StringType?,
+    val disease: Coding?,
+    val nextDose: DateTimeType?,
 ): BaseModel()
 
 class TestResult (

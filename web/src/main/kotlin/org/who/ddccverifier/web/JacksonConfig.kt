@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilde
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
-import org.who.ddccverifier.trust.pathcheck.KeyUtils
+import org.who.ddccverifier.trust.didweb.KeyUtils
 import java.security.PublicKey
 
 @Configuration
