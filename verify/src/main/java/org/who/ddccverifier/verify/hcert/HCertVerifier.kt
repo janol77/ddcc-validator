@@ -107,7 +107,7 @@ class HCertVerifier (private val registry: TrustRegistry) {
     val EU_DCC_CODE = -260
 
     fun toFhir(hcertPayload: CBORObject): Bundle? {
-        if (hcertPayload[EU_DCC_CODE] != null)
+        if (hcertPayload[EU_DCC_CODE] != null && hcertPayload[EU_DCC_CODE][1] != null )
             try {
                 return DccMapper().run(
                     jacksonObjectMapper().readValue(
@@ -118,23 +118,11 @@ class HCertVerifier (private val registry: TrustRegistry) {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-
-//        try {
-//            return WhoMapper().run(
-//                jacksonObjectMapper().readValue(
-//                    hcertPayload.ToJSONString(),
-//                    WHOLogicalModel::class.java
-//                )
-//            );
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-
         try {
             jacksonObjectMapper().readValue(
                 hcertPayload.ToJSONString(),
                 WHO_CWT::class.java
-            ).data?.let {
+            ).data?.cert?.let {
                 return WhoMapper().run(it);
             }
         } catch (e: Exception) {
