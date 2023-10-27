@@ -170,8 +170,9 @@ class DDCCTrustRegistry : TrustRegistry {
         } else {
             val encKid = URLEncoder.encode(kid,"UTF-8")
             println("DID:WEB: Resolving $kid -> $PROD_KEY_ID:$encKid#$encKid")
+            // hardcode de country for testing XCL, remove after fix the generator
             return registry[URI.create("$PROD_KEY_ID:$encKid#$encKid")]
-                ?: registry[URI.create("$TEST_KEY_ID:$encKid#$encKid")]
+                ?: registry[URI.create("$TEST_KEY_ID:xcl#$encKid")]
         }
     }
 }
