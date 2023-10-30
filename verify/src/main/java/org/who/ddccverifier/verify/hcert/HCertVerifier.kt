@@ -76,7 +76,12 @@ class HCertVerifier (private val registry: TrustRegistry) {
     private fun resolveIssuer(kid: String): TrustRegistry.TrustedEntity? {
         return registry.resolve(TrustRegistry.Framework.DCC, kid)
     }
-
+    private fun getCountry(hcertPayload: CBORObject): String? {
+        if ( hcertPayload[1] != null ){
+            return hcertPayload[1].AsString()
+        }
+        return null
+    }
     private fun getContent(signedMessage: Sign1Message): CBORObject {
         return CBORObject.DecodeFromBytes(signedMessage.GetContent())
     }
@@ -147,7 +152,9 @@ class HCertVerifier (private val registry: TrustRegistry) {
         ]"""
 
         val kid = getKID(signedMessage) ?: return QRDecoder.VerificationResult(QRDecoder.Status.KID_NOT_INCLUDED, null, null, qr, unpacked)
-        val issuer = resolveIssuer(kid) ?: return QRDecoder.VerificationResult(QRDecoder.Status.ISSUER_NOT_TRUSTED, null, null, qr, unpacked)
+        val countryCode = getCountry(contentsCBOR) ?: return QRDecoder.VerificationResult(QRDecoder.Status.ISSUER_NOT_TRUSTED, null, null, qr, unpacked)
+        val countryKID = "$countryCode#$kid";
+        val issuer = resolveIssuer(countryKID) ?: return QRDecoder.VerificationResult(QRDecoder.Status.ISSUER_NOT_TRUSTED, null, null, qr, unpacked)
 
         val contents = toFhir(contentsCBOR) ?: return QRDecoder.VerificationResult(QRDecoder.Status.NOT_SUPPORTED, null, issuer, qr, unpacked)
 
