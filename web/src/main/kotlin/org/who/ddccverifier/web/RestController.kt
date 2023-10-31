@@ -18,9 +18,8 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
+import java.util.*
 import javax.imageio.ImageIO
-import kotlin.String
-import kotlin.apply
 
 
 @RestController
@@ -45,12 +44,17 @@ class RestController {
         if (file.isEmpty()) {
             return QRDecoder.VerificationResult(QRDecoder.Status.NOT_FOUND, null, null, "", null)
         }
-
+        val hints: Hashtable<DecodeHintType, String> = Hashtable<DecodeHintType, String>()
         val image = if (StringUtils.endsWithIgnoreCase(file.originalFilename, "pdf")) {
             val doc = PDDocument.load(ByteArrayInputStream(file.bytes))
-            val pdfRenderer = PDFRenderer(doc)
-            pdfRenderer.renderImageWithDPI(0, 300f)
+            try {
+                val pdfRenderer = PDFRenderer(doc)
+                pdfRenderer.renderImageWithDPI(0, 300f)
+            }finally {
+                doc.close()
+            }
         } else {
+            hints.put(DecodeHintType.PURE_BARCODE, "true")
             ImageIO.read(ByteArrayInputStream(file.bytes))
         }
 
@@ -59,7 +63,7 @@ class RestController {
         ))
 
         val qrContents = try {
-            MultiFormatReader().decode(binaryBitmap)
+            MultiFormatReader().decode(binaryBitmap, hints)
         } catch (e: NotFoundException) {
             return QRDecoder.VerificationResult(QRDecoder.Status.NOT_FOUND, null, null, "", null)
         }

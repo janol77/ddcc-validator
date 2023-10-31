@@ -78,7 +78,7 @@ class HCertVerifier (private val registry: TrustRegistry) {
     }
     private fun getCountry(hcertPayload: CBORObject): String? {
         if ( hcertPayload[1] != null ){
-            return hcertPayload[1].AsString()
+            return hcertPayload[1].AsString().lowercase()
         }
         return null
     }
