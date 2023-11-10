@@ -32,7 +32,8 @@ class QRDecoder(private val registry: TrustRegistry) {
         var contents: Bundle?, // the DDCC Composition
         var issuer: TrustRegistry.TrustedEntity?,
         var qr: String,
-        var unpacked: String?
+        var unpacked: String?,
+        var country: String? = null,
     ) {
         fun composition() = contents?.entry?.filter { it.resource is Composition }?.firstOrNull()?.resource as Composition?
     }

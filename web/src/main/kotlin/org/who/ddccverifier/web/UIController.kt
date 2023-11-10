@@ -45,7 +45,8 @@ class UIController {
             redirect.addFlashAttribute("issuer", json.writeValueAsString(result.issuer))
         if (result.unpacked != null)
             redirect.addFlashAttribute("unpacked", json.readTree(result.unpacked).toPrettyString())
-
+        if (result.country != null)
+            redirect.addFlashAttribute("country", result.country)
         return RedirectView("showCredential")
     }
 }
