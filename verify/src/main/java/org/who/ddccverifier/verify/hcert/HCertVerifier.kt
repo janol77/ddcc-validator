@@ -156,8 +156,8 @@ class HCertVerifier (private val registry: TrustRegistry) {
         val countryKID = "$countryCode#$kid";
         val issuer = resolveIssuer(countryKID) ?: return QRDecoder.VerificationResult(QRDecoder.Status.ISSUER_NOT_TRUSTED, null, null, qr, unpacked)
 
-        val contents = toFhir(contentsCBOR) ?: return QRDecoder.VerificationResult(QRDecoder.Status.NOT_SUPPORTED, null, issuer, qr, unpacked)
-
+        //val contents = toFhir(contentsCBOR) ?: return QRDecoder.VerificationResult(QRDecoder.Status.NOT_SUPPORTED, null, issuer, qr, unpacked)
+        val contents = null
         return when (issuer.status) {
             TrustRegistry.Status.TERMINATED -> QRDecoder.VerificationResult(QRDecoder.Status.TERMINATED_KEYS, contents, issuer, qr, unpacked)
             TrustRegistry.Status.EXPIRED -> QRDecoder.VerificationResult(QRDecoder.Status.EXPIRED_KEYS, contents, issuer, qr, unpacked)
